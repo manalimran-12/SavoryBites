@@ -2,54 +2,66 @@ import React, { useEffect } from 'react';
 import { Text, View, StyleSheet, StatusBar, Image } from 'react-native';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import Animated, { useSharedValue, withSpring, useAnimatedStyle } from 'react-native-reanimated';
+import { TapGestureHandler } from 'react-native-gesture-handler';
 
 export default function WelcomeScreen() {
 
   const ring1Padding = useSharedValue(0);  
   const ring2Padding = useSharedValue(0);
 
+  // Animated styles for ring1 and ring2
   const ring1Style = useAnimatedStyle(() => {
     return {
-      padding: ring1Padding.value, 
-      transform: [{ scale: withSpring(ring1Padding.value > 0 ? 1.1 : 1) }] 
+      padding: ring1Padding.value, // padding animation
+      transform: [{ scale: withSpring(ring1Padding.value > 0 ? 1.1 : 1) }] // added scale for visual feedback
     };
   });
 
   const ring2Style = useAnimatedStyle(() => {
     return {
       padding: ring2Padding.value,
-      transform: [{ scale: withSpring(ring2Padding.value > 0 ? 1.1 : 1) }] 
+      transform: [{ scale: withSpring(ring2Padding.value > 0 ? 1.1 : 1) }] // added scale for visual feedback
     };
   });
 
+  const animateRings = () => {
+    ring1Padding.value = withSpring(hp(5));
+    ring2Padding.value = withSpring(hp(5.5));
+  };
+
   useEffect(() => {
-    ring1Padding.value = 0;
-    ring2Padding.value = 0;
-    setTimeout(() => {
-      ring1Padding.value = withSpring(hp(5));
-      console.log('Ring1 padding:', ring1Padding.value); 
-    }, 200);
+    animateRings();
+  }, []);
+
+  const handleRing1Tap = () => {
+    ring1Padding.value = 0; // Reset to initial state
+    ring2Padding.value = 0; // Reset to initial state
 
     setTimeout(() => {
-      ring2Padding.value = withSpring(hp(5.5));
-      console.log('Ring2 padding:', ring2Padding.value); 
-    }, 500);
-  }, []);
+      animateRings(); // Reanimate when tapped
+    }, 100);
+  };
 
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#70B9BE" />
       
-      <Animated.View style={[styles.ring1, ring1Style]}>
-        <Animated.View style={[styles.ring2, ring2Style]}>
-          <Image source={require('../../assets/Group.png')} style={[styles.image, styles.image1]} />
-          <Image source={require('../../assets/2.png')} style={[styles.image, styles.image2]} />
-          <Image source={require('../../assets/3.png')} style={[styles.image, styles.image3]} />
-          <Image source={require('../../assets/4.png')} style={[styles.image, styles.image4]} />
-          <Image source={require('../../assets/5.png')} style={[styles.image, styles.image5]} />
-          <Image source={require('../../assets/6.png')} style={[styles.image, styles.image6]} />
+      {/* Apply the tap gesture handler for ring1 */}
+      <TapGestureHandler onHandlerStateChange={handleRing1Tap}>
+        <Animated.View style={[styles.ring1, ring1Style]}>
+          {/* Apply the tap gesture handler for ring2 */}
+          <TapGestureHandler onHandlerStateChange={handleRing1Tap}>
+            <Animated.View style={[styles.ring2, ring2Style]}>
+              <Image source={require('../../assets/Group.png')} style={[styles.image, styles.image1]} />
+              <Image source={require('../../assets/2.png')} style={[styles.image, styles.image2]} />
+              <Image source={require('../../assets/3.png')} style={[styles.image, styles.image3]} />
+              <Image source={require('../../assets/4.png')} style={[styles.image, styles.image4]} />
+              <Image source={require('../../assets/5.png')} style={[styles.image, styles.image5]} />
+              <Image source={require('../../assets/6.png')} style={[styles.image, styles.image6]} />
+            </Animated.View>
+          </TapGestureHandler>
         </Animated.View>
-      </Animated.View>
+      </TapGestureHandler>
 
       <View style={styles.textContainer}>
         <Text style={styles.text1}>SavoryBites</Text>
@@ -116,7 +128,7 @@ const styles = StyleSheet.create({
     display: 'flex', 
     alignItems: 'center', 
     justifyContent: 'center',
-    marginTop: '5%'
+    marginTop:"5%"
   },
   text1: {
     marginVertical: hp('1%'),
